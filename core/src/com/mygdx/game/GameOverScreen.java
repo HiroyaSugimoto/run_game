@@ -8,14 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class MainMenuScreen implements Screen {
+public class GameOverScreen implements Screen{
 
     final RunGame game;
 
     OrthographicCamera camera;
     Viewport viewport;
 
-    public MainMenuScreen(final RunGame gam) {
+    public GameOverScreen(final RunGame gam) {
         game = gam;
 
         camera = new OrthographicCamera(192, 384);
@@ -32,8 +32,8 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Run Game!!", 48, 300);
-        game.font.draw(game.batch, "Press Space Key to Begin.", 10, 250);
+        game.font.draw(game.batch, "Game Orver", 48, 300);
+        game.font.draw(game.batch, "Press Space Key to Retry.", 0, 250);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {

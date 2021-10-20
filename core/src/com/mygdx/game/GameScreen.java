@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -8,7 +9,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -23,21 +23,8 @@ public class GameScreen implements Screen {
     OrthographicCamera camera;
     Viewport viewport;
     Rectangle player;
-
     Array<Rectangle> obstacles;
-    long lastObst;
-
-    int obstaclePos;
-
-    /*
-    Array<Rectangle> leftObsts;
-    Array<Rectangle> centerObsts;
-    Array<Rectangle> rightObsts;
-
-    long leftLastTime;
-    long centerLastTime;
-    long rightLastTime;
-    */
+    long lastObstTime;
 
     public GameScreen(final RunGame gam) {
         this.game = gam;
@@ -60,61 +47,23 @@ public class GameScreen implements Screen {
 
         obstacles = new Array<Rectangle>();
         spawnObstacle();
-
-        //障害物のArrayListを作成し、最初の障害物をスポーンする
-        /*
-        leftObsts = new Array<Rectangle>();
-        spawnLeftObst();
-        centerObsts = new Array<Rectangle>();
-        spawnCenterObst();
-        rightObsts = new Array<Rectangle>();
-        spawnRightObst();
-        */
-
     }
 
     private void spawnObstacle() {
         Rectangle obstacle = new Rectangle();
-        obstacle.x = obstaclePos;
+
+        //x軸は指定した3箇所からランダムに取得
+        int[] i = {0, 64, 128};
+        Random r = new Random();
+        int xPos = i[r.nextInt(3)];
+        obstacle.x = xPos;
+
         obstacle.y = 384;
         obstacle.width = 64;
         obstacle.height = 64;
         obstacles.add(obstacle);
-        lastObst = TimeUtils.nanoTime();
-
+        lastObstTime = TimeUtils.nanoTime();
     }
-
-    /*
-    private void spawnLeftObst() {
-        Rectangle leftObst = new Rectangle();
-        leftObst.x = 0;
-        leftObst.y = 1000;
-        leftObst.width = 64;
-        leftObst.height = 64;
-        leftObsts.add(leftObst);
-        leftLastTime = TimeUtils.nanoTime();
-    }
-
-    private void spawnCenterObst() {
-        Rectangle centerObst = new Rectangle();
-        centerObst.x = 64;
-        centerObst.y = 384;
-        centerObst.width = 64;
-        centerObst.height = 64;
-        centerObsts.add(centerObst);
-        centerLastTime = TimeUtils.nanoTime();
-    }
-
-    private void spawnRightObst() {
-        Rectangle rightObst = new Rectangle();
-        rightObst.x = 128;
-        rightObst.y = 700;
-        rightObst.width = 64;
-        rightObst.height = 64;
-        rightObsts.add(rightObst);
-        rightLastTime = TimeUtils.nanoTime();
-    }
-    */
 
     @Override
     public void render(float delta) {
@@ -131,27 +80,10 @@ public class GameScreen implements Screen {
         game.batch.draw(playerImage, player.x, player.y);
 
         for(Rectangle obstacle : obstacles) {
-            if(MathUtils.randomBoolean()) {
-                game.batch.draw(obstacleImage, obstacle.x = 0, obstacle.y);
-            } else if(MathUtils.randomBoolean()) {
-                game.batch.draw(obstacleImage, obstacle.x = 64, obstacle.y);
-            } else {
-                game.batch.draw(obstacleImage, obstacle.x = 128, obstacle.y);
-            }
+            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
         }
-        game.batch.end();
 
-        /*
-        for(Rectangle obstacle : leftObsts) {
-            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
-        }
-        for(Rectangle obstacle : centerObsts) {
-            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
-        }
-        for(Rectangle obstacle : rightObsts) {
-            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
-        }
-        */
+        game.batch.end();
 
         //ユーザーのキー入力処理
         if(Gdx.input.isKeyJustPressed(Keys.LEFT))
@@ -166,53 +98,21 @@ public class GameScreen implements Screen {
             player.x = 192 - 64;
 
         //障害物の生成が必要かチェックして生成
-        if(TimeUtils.nanoTime() - lastObst > 2000000000) {
+        if(TimeUtils.nanoTime() - lastObstTime > 500000000) {
             spawnObstacle();
         }
-
 
         Iterator<Rectangle> iter = obstacles.iterator();
         while(iter.hasNext()) {
             Rectangle obstacle = iter.next();
-            obstacle.y -= 200 * Gdx.graphics.getDeltaTime();
+            obstacle.y -= 600 * Gdx.graphics.getDeltaTime();
             if(obstacle.y + 64 < 0)
                 iter.remove();
+            if(obstacle.overlaps(player)) {
+                game.setScreen(new GameOverScreen(game));
+                dispose();
+            }
         }
-
-        /*
-        long nextTime = MathUtils.random(2000000000, 2000000000);
-
-        if(TimeUtils.nanoTime() - leftLastTime > nextTime)
-            spawnLeftObst();
-        if(TimeUtils.nanoTime() - centerLastTime > nextTime)
-            spawnCenterObst();
-        if(TimeUtils.nanoTime() - rightLastTime > nextTime)
-            spawnRightObst();
-
-        Iterator<Rectangle> leftIter = leftObsts.iterator();
-        while(leftIter.hasNext()) {
-            Rectangle obstract = leftIter.next();
-            obstract.y -= 200 * Gdx.graphics.getDeltaTime();
-            if(obstract.y + 64 < 0)
-                leftIter.remove();
-        }
-
-        Iterator<Rectangle> centerIter = centerObsts.iterator();
-        while(centerIter.hasNext()) {
-            Rectangle obstract = centerIter.next();
-            obstract.y -= 200 * Gdx.graphics.getDeltaTime();
-            if(obstract.y + 64 < 0)
-                centerIter.remove();
-        }
-
-        Iterator<Rectangle> rightIter = rightObsts.iterator();
-        while(rightIter.hasNext()) {
-            Rectangle obstract = rightIter.next();
-            obstract.y -= 200 * Gdx.graphics.getDeltaTime();
-            if(obstract.y + 64 < 0)
-                rightIter.remove();
-        }
-        */
 
     }
 
