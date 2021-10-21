@@ -27,8 +27,8 @@ public class GameScreen implements Screen {
     Rectangle goal;
     Array<Rectangle> obstacles;
     long lastObstTime;
-    long goalSpawnTime;
-    int time = 0;
+    int obstCount = 0; //障害物が生成された回数
+    int gameCleaNumber = 30; //obstCountが幾つになったらゴールが表示されるかの設定値
 
     public GameScreen(final RunGame gam) {
         this.game = gam;
@@ -59,7 +59,6 @@ public class GameScreen implements Screen {
 
         obstacles = new Array<Rectangle>();
         spawnObstacle();
-
     }
 
     private void spawnObstacle() {
@@ -85,12 +84,15 @@ public class GameScreen implements Screen {
 
         //各batchを配置
         game.batch.begin();
-        game.batch.draw(playerImage, player.x, player.y);
+        game.batch.draw(playerImage, player.x, player.y); //プレイヤー
+
+        //障害物を繰り返し生成
         for(Rectangle obstacle : obstacles) {
             game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
         }
-        game.font.draw(game.batch, time + " m", 5, 379);
-        game.batch.draw(goalImage, goal.x, goal.y);
+
+        game.font.draw(game.batch, obstCount + " m", 5, 379); //画面左上に現在の進行状況を表示
+        game.batch.draw(goalImage, goal.x, goal.y); //ゴール
         game.batch.end();
 
         //ユーザーのキー入力処理
@@ -106,28 +108,28 @@ public class GameScreen implements Screen {
             player.x = 192 - 64;
 
         //障害物の生成が必要かチェックして生成
-        if(TimeUtils.nanoTime() - lastObstTime > 500000000 && time < 10) {
+        if(TimeUtils.nanoTime() - lastObstTime > 500000000 && obstCount < gameCleaNumber) {
             spawnObstacle();
-            time++;
+            obstCount++;
             }
 
-            Iterator<Rectangle> iter = obstacles.iterator();
-            while(iter.hasNext()) {
-                Rectangle obstacle = iter.next();
-                obstacle.y -= 600 * Gdx.graphics.getDeltaTime();
-                if(obstacle.y + 64 < 0)
-                    iter.remove();
-                if(obstacle.overlaps(player)) {
-                    game.setScreen(new GameOverScreen(game));
-                    dispose();
+        Iterator<Rectangle> iter = obstacles.iterator();
+        while(iter.hasNext()) {
+            Rectangle obstacle = iter.next();
+            obstacle.y -= 600 * Gdx.graphics.getDeltaTime();
+            if(obstacle.y + 64 < 0)
+                iter.remove();
+            if(obstacle.overlaps(player)) {
+                game.setScreen(new GameOverScreen(game));
+                dispose();
                     }
-                 }
+                }
 
-            if(time >= 10) {
-                goal.y -= 300 * Gdx.graphics.getDeltaTime();
-                if(goal.y + 18 < 0) {
-                    game.setScreen(new GameClearScreen(game));
-                    dispose();
+        if(obstCount >= gameCleaNumber) {
+            goal.y -= 300 * Gdx.graphics.getDeltaTime();
+            if(goal.y + 18 < 0) {
+                game.setScreen(new GameClearScreen(game));
+                dispose();
                 }
             }
 

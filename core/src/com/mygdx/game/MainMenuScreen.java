@@ -33,7 +33,7 @@ public class MainMenuScreen implements Screen {
 
         game.batch.begin();
         game.font.draw(game.batch, "Run Game!!", 48, 250);
-        game.font.draw(game.batch, "Press Space Key to Begin.", 10, 200);
+        game.font.draw(game.batch, "Press Space Key to Start.", 10, 200);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {

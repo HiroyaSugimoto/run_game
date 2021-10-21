@@ -32,7 +32,7 @@ public class GameClearScreen implements Screen {
 
         game.batch.begin();
         game.font.draw(game.batch, "GOAL!!!", 64, 250);
-        game.font.draw(game.batch, "Congratulations!!", 40, 225);
+        game.font.draw(game.batch, "Congratulations!!!", 40, 225);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {
