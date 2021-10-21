@@ -125,8 +125,11 @@ public class GameScreen implements Screen {
 
             if(time >= 10) {
                 goal.y -= 300 * Gdx.graphics.getDeltaTime();
-
+                if(goal.y + 18 < 0) {
+                    game.setScreen(new GameClearScreen(game));
+                    dispose();
                 }
+            }
 
          }
 
