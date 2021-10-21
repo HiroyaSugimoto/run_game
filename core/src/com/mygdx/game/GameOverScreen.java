@@ -32,8 +32,8 @@ public class GameOverScreen implements Screen{
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Game Orver", 48, 300);
-        game.font.draw(game.batch, "Press Space Key to Retry.", 0, 250);
+        game.font.draw(game.batch, "Game Orver", 48, 250);
+        game.font.draw(game.batch, "Press Space Key to Retry.", 10, 200);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {
