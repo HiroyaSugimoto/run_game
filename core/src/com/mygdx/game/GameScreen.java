@@ -5,18 +5,23 @@ import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.mygdx.game.model.Player;
 
 public class GameScreen implements Screen {
     final RunGame game;
+    Player play;
 
     Texture playerImage;
     Texture obstacleImage;
@@ -30,8 +35,33 @@ public class GameScreen implements Screen {
     int obstCount = 0; //障害物が生成された回数
     int gameCleaNumber = 30; //obstCountが幾つになったらゴールが表示されるかの設定値
 
+    //
+    //private SpriteBatch batch;
+    private Animation<TextureRegion> animation;
+    private float stateTime;
+    private FPSLogger logger;
+    //
+
     public GameScreen(final RunGame gam) {
         this.game = gam;
+
+        //
+        //batch = new SpriteBatch();
+
+        TextureRegion texture1 = new TextureRegion(new Texture("player1.png"));
+        TextureRegion texture2 = new TextureRegion(new Texture("player2.png"));
+        TextureRegion texture3 = new TextureRegion(new Texture("player3.png"));
+        TextureRegion texture4 = new TextureRegion(new Texture("player4.png"));
+        TextureRegion texture5 = new TextureRegion(new Texture("player5.png"));
+        TextureRegion texture6 = new TextureRegion(new Texture("player6.png"));
+
+        animation = new Animation<TextureRegion>(0.05f, texture1, texture2, texture3, texture4, texture5, texture6);
+        animation.setPlayMode(Animation.PlayMode.LOOP);
+
+        stateTime = 0.0f;
+
+        logger = new FPSLogger();
+        //
 
         //使用する画像をロード
         playerImage = new Texture(Gdx.files.internal("player.png"));
@@ -79,6 +109,10 @@ public class GameScreen implements Screen {
 
         camera.update();
 
+        //
+        stateTime += Gdx.graphics.getDeltaTime();
+        //
+
         //SpriteBatchにcameraによって指定された座標系でレンダリングするよう指示
         game.batch.setProjectionMatrix(camera.combined);
 
@@ -93,7 +127,14 @@ public class GameScreen implements Screen {
 
         game.font.draw(game.batch, obstCount + " m", 5, 379); //画面左上に現在の進行状況を表示
         game.batch.draw(goalImage, goal.x, goal.y); //ゴール
+        //
+        game.batch.draw(animation.getKeyFrame(stateTime), 10, 10);
+        //
         game.batch.end();
+
+        //
+        logger.log();
+        //
 
         //ユーザーのキー入力処理
         if(Gdx.input.isKeyJustPressed(Keys.LEFT))
