@@ -21,8 +21,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class GameScreen implements Screen {
     final RunGame game;
 
-    //Texture playerImage;
-    //Texture obstacleImage;
     Texture goalImage;
     OrthographicCamera camera;
     Viewport viewport;
@@ -65,8 +63,6 @@ public class GameScreen implements Screen {
 
         //ゴールの画像をロード
         goalImage = new Texture(Gdx.files.internal("goal.png"));
-        //playerImage = new Texture(Gdx.files.internal("player.png"));
-        //obstacleImage = new Texture(Gdx.files.internal("Obstacle.png"));
 
         //カメラで描画する座標を設定
         camera = new OrthographicCamera(192, 384);
@@ -120,7 +116,6 @@ public class GameScreen implements Screen {
         game.batch.begin();
 
         game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y); //プレイヤー
-        //game.batch.draw(playerImage, player.x, player.y);
 
         //障害物を繰り返し生成
         for(Rectangle obstacle : obstacles) {
@@ -195,8 +190,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        //playerImage.dispose();
-        //obstacleImage.dispose();
+        goalImage.dispose();
     }
 }
 
