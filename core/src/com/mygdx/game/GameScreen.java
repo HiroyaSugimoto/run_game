@@ -17,14 +17,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.mygdx.game.model.Player;
 
 public class GameScreen implements Screen {
     final RunGame game;
-    Player play;
 
-    Texture playerImage;
-    Texture obstacleImage;
+    //Texture playerImage;
+    //Texture obstacleImage;
     Texture goalImage;
     OrthographicCamera camera;
     Viewport viewport;
@@ -35,19 +33,16 @@ public class GameScreen implements Screen {
     int obstCount = 0; //障害物が生成された回数
     int gameCleaNumber = 30; //obstCountが幾つになったらゴールが表示されるかの設定値
 
-    //
-    //private SpriteBatch batch;
-    private Animation<TextureRegion> animation;
-    private float stateTime;
-    private FPSLogger logger;
-    //
+    Animation<TextureRegion> playerAnime; //プレイヤーキャラクターのアニメーション
+    Animation<TextureRegion> obstAnime; //障害物のアニメーション
+
+    float stateTime; //アニメーション進度の管理用変数
+    FPSLogger logger; //FPS計測用
 
     public GameScreen(final RunGame gam) {
         this.game = gam;
 
-        //
-        //batch = new SpriteBatch();
-
+        //プレイヤーキャラクターのアニメーション用画像をロード
         TextureRegion texture1 = new TextureRegion(new Texture("player1.png"));
         TextureRegion texture2 = new TextureRegion(new Texture("player2.png"));
         TextureRegion texture3 = new TextureRegion(new Texture("player3.png"));
@@ -55,44 +50,51 @@ public class GameScreen implements Screen {
         TextureRegion texture5 = new TextureRegion(new Texture("player5.png"));
         TextureRegion texture6 = new TextureRegion(new Texture("player6.png"));
 
-        animation = new Animation<TextureRegion>(0.05f, texture1, texture2, texture3, texture4, texture5, texture6);
-        animation.setPlayMode(Animation.PlayMode.LOOP);
+        //1〜6の画像を割り当て、1フレームあたり0.05秒で再生
+        playerAnime = new Animation<TextureRegion>(0.05f, texture1, texture2, texture3, texture4, texture5, texture6);
+        playerAnime.setPlayMode(Animation.PlayMode.LOOP); //アニメーションをループ再生
 
-        stateTime = 0.0f;
+        //障害物のアニメーションを設定
+        TextureRegion texture7 = new TextureRegion(new Texture("obstacle1.png"));
+        TextureRegion texture8 = new TextureRegion(new Texture("obstacle2.png"));
+        obstAnime = new Animation<TextureRegion>(0.25f, texture7, texture8);
+        obstAnime.setPlayMode(Animation.PlayMode.LOOP);
 
+        stateTime = 0.0f; //アニメーション用の進行時間
         logger = new FPSLogger();
-        //
 
-        //使用する画像をロード
-        playerImage = new Texture(Gdx.files.internal("player.png"));
-        obstacleImage = new Texture(Gdx.files.internal("Obstacle.png"));
+        //ゴールの画像をロード
         goalImage = new Texture(Gdx.files.internal("goal.png"));
+        //playerImage = new Texture(Gdx.files.internal("player.png"));
+        //obstacleImage = new Texture(Gdx.files.internal("Obstacle.png"));
 
-        //カメラとSpriteBatchを生成
+        //カメラで描画する座標を設定
         camera = new OrthographicCamera(192, 384);
         viewport = new FitViewport(192, 384, camera);
         camera.setToOrtho(false, 192, 384);
 
-        //プレイヤーのRectangleを生成
+        //プレイヤー(playerAnime)用のRectangleを設定
         player = new Rectangle();
         player.x = 64;
         player.y = 10;
         player.width = 64;
         player.height = 64;
 
-        //ゴールのRectangleを生成
+        //ゴール用のRectangleを設定
         goal = new Rectangle();
         goal.x = 0;
         goal.y = 768;
         goal.width = 192;
         goal.height = 16;
 
+        //障害物用のRectangleリスト
         obstacles = new Array<Rectangle>();
         spawnObstacle();
     }
 
     private void spawnObstacle() {
         Rectangle obstacle = new Rectangle();
+
         //x軸は0,64,128の3箇所からランダムに取得
         obstacle.x = MathUtils.random.nextInt(3) * 64;
         obstacle.y = 384;
@@ -107,34 +109,28 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0.7f, 0.7f, 0.7f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        camera.update();
-
-        //
-        stateTime += Gdx.graphics.getDeltaTime();
-        //
+        camera.update(); //カメラ更新処理
+        logger.log(); //コンソールにFPS値を出力
+        stateTime += Gdx.graphics.getDeltaTime(); //アニメーションの前フレームからの経過時間を進行時間に加算
 
         //SpriteBatchにcameraによって指定された座標系でレンダリングするよう指示
         game.batch.setProjectionMatrix(camera.combined);
 
         //各batchを配置
         game.batch.begin();
-        game.batch.draw(playerImage, player.x, player.y); //プレイヤー
+
+        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y); //プレイヤー
+        //game.batch.draw(playerImage, player.x, player.y);
 
         //障害物を繰り返し生成
         for(Rectangle obstacle : obstacles) {
-            game.batch.draw(obstacleImage, obstacle.x, obstacle.y);
+            game.batch.draw(obstAnime.getKeyFrame(stateTime), obstacle.x, obstacle.y);
         }
 
         game.font.draw(game.batch, obstCount + " m", 5, 379); //画面左上に現在の進行状況を表示
         game.batch.draw(goalImage, goal.x, goal.y); //ゴール
-        //
-        game.batch.draw(animation.getKeyFrame(stateTime), 10, 10);
-        //
-        game.batch.end();
 
-        //
-        logger.log();
-        //
+        game.batch.end(); //batch.begin()からここまでの描写リクエストをまとめて処理
 
         //ユーザーのキー入力処理
         if(Gdx.input.isKeyJustPressed(Keys.LEFT))
@@ -199,8 +195,8 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-        playerImage.dispose();
-        obstacleImage.dispose();
+        //playerImage.dispose();
+        //obstacleImage.dispose();
     }
 }
 
