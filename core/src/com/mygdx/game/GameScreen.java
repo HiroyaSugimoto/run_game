@@ -5,6 +5,8 @@ import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -33,9 +35,11 @@ public class GameScreen implements Screen {
 
     Animation<TextureRegion> playerAnime; //プレイヤーキャラクターのアニメーション
     Animation<TextureRegion> obstAnime; //障害物のアニメーション
-
     float stateTime; //アニメーション進度の管理用変数
     FPSLogger logger; //FPS計測用
+
+    Sound missSound;
+    Music runMusic;
 
     public GameScreen(final RunGame gam) {
         this.game = gam;
@@ -64,6 +68,14 @@ public class GameScreen implements Screen {
         //ゴールの画像をロード
         goalImage = new Texture(Gdx.files.internal("goal.png"));
 
+        //音素材をロード
+        runMusic = Gdx.audio.newMusic(Gdx.files.internal("run_se.mp3"));
+        missSound = Gdx.audio.newSound(Gdx.files.internal("miss_se.mp3"));
+
+        //
+        runMusic.setLooping(true);
+        runMusic.play();
+
         //カメラで描画する座標を設定
         camera = new OrthographicCamera(192, 384);
         viewport = new FitViewport(192, 384, camera);
@@ -74,7 +86,7 @@ public class GameScreen implements Screen {
         player.x = 64;
         player.y = 10;
         player.width = 64;
-        player.height = 64;
+        player.height = 32;
 
         //ゴール用のRectangleを設定
         goal = new Rectangle();
@@ -152,6 +164,12 @@ public class GameScreen implements Screen {
             if(obstacle.y + 64 < 0)
                 iter.remove();
             if(obstacle.overlaps(player)) {
+                missSound.play(0.3f);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 game.setScreen(new GameOverScreen(game));
                 dispose();
                     }
@@ -191,6 +209,8 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         goalImage.dispose();
+        runMusic.dispose();
+        missSound.dispose();
     }
 }
 
