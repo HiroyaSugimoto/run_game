@@ -106,18 +106,9 @@ public class GameScreen implements Screen {
         //ゴール用のRectangleを設定
         goal = new Rectangle();
         goal.x = 0;
-        goal.y = 768;
+        goal.y = 1152;
         goal.width = 192;
         goal.height = 16;
-
-        /*
-        //背景のRectangleを設定
-        background = new Rectangle();
-        background.x = 0;
-        background.y = 0;
-        background.width = 192;
-        background.height = 768;
-        */
 
         //障害物用のRectangleリスト
         obstacles = new Array<Rectangle>();
@@ -164,28 +155,31 @@ public class GameScreen implements Screen {
         //SpriteBatchにcameraによって指定された座標系でレンダリングするよう指示
         game.batch.setProjectionMatrix(camera.combined);
 
+
         //各batchを配置
         game.batch.begin();
 
-        /*
-        game.batch.draw(backgroundImage, background.x, background.y);
-        */
+        //背景を繰り返し生成
         for(Rectangle background : backgrounds) {
             game.batch.draw(backgroundImage, background.x, background.y);
         }
 
-        game.batch.draw(goalImage, goal.x, goal.y); //ゴール
+        //ゴール
+        game.batch.draw(goalImage, goal.x, goal.y);
 
         //障害物を繰り返し生成
         for(Rectangle obstacle : obstacles) {
             game.batch.draw(obstAnime.getKeyFrame(stateTime), obstacle.x, obstacle.y);
         }
 
-        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y); //プレイヤー
+        //プレイヤー
+        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y);
 
-        game.font.draw(game.batch, obstCount + " m", 5, 379); //画面左上に現在の進行状況を表示
+        //画面左上に現在の進行状況を表示
+        game.font.draw(game.batch, obstCount + " m", 5, 379);
 
         game.batch.end(); //batch.begin()からここまでの描写リクエストをまとめて処理
+
 
         //ユーザーのキー入力処理
         if(Gdx.input.isKeyJustPressed(Keys.LEFT))
@@ -241,7 +235,7 @@ public class GameScreen implements Screen {
                 }
 
         if(obstCount >= gameCleaNumber) {
-            goal.y -= 300 * Gdx.graphics.getDeltaTime();
+            goal.y -= 600 * Gdx.graphics.getDeltaTime();
             if(goal.y + 18 < 0) {
                 game.setScreen(new GameClearScreen(game));
                 dispose();
