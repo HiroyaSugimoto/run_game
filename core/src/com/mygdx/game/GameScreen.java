@@ -23,23 +23,37 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class GameScreen implements Screen {
     final RunGame game;
 
-    Texture goalImage;
+    //カメラ関連の変数
     OrthographicCamera camera;
     Viewport viewport;
+
+    //操作キャラクター関連の変数
     Rectangle player;
+    Animation<TextureRegion> playerAnime;
+
+    //ゴール関連の変数
+    Texture goalImage;
     Rectangle goal;
+
+    //背景関連の変数
+    Texture backgroundImage;
+    Array<Rectangle> backgrounds;
+    float backgroundPos;
+
+    //障害物関連の変数
     Array<Rectangle> obstacles;
+    Animation<TextureRegion> obstAnime;
     long lastObstTime;
     int obstCount = 0; //障害物が生成された回数
     int gameCleaNumber = 30; //obstCountが幾つになったらゴールが表示されるかの設定値
 
-    Animation<TextureRegion> playerAnime; //プレイヤーキャラクターのアニメーション
-    Animation<TextureRegion> obstAnime; //障害物のアニメーション
-    float stateTime; //アニメーション進度の管理用変数
+    //アニメーション関連の変数
+    float stateTime; //アニメーション進度の管理用
     FPSLogger logger; //FPS計測用
 
-    Sound missSound;
-    Music runMusic;
+    //音関連の変数
+    Music runMusic; //足音
+    Sound missSound; //衝突音
 
     public GameScreen(final RunGame gam) {
         this.game = gam;
@@ -65,14 +79,15 @@ public class GameScreen implements Screen {
         stateTime = 0.0f; //アニメーション用の進行時間
         logger = new FPSLogger();
 
-        //ゴールの画像をロード
+        //背景とゴールの画像をロード
+        backgroundImage = new Texture(Gdx.files.internal("background.png"));
         goalImage = new Texture(Gdx.files.internal("goal.png"));
 
         //音素材をロード
         runMusic = Gdx.audio.newMusic(Gdx.files.internal("run_se.mp3"));
         missSound = Gdx.audio.newSound(Gdx.files.internal("miss_se.mp3"));
 
-        //
+        //足音をループ再生
         runMusic.setLooping(true);
         runMusic.play();
 
@@ -95,9 +110,23 @@ public class GameScreen implements Screen {
         goal.width = 192;
         goal.height = 16;
 
+        /*
+        //背景のRectangleを設定
+        background = new Rectangle();
+        background.x = 0;
+        background.y = 0;
+        background.width = 192;
+        background.height = 768;
+        */
+
         //障害物用のRectangleリスト
         obstacles = new Array<Rectangle>();
         spawnObstacle();
+
+        //背景用のRectangleリスト
+        backgrounds = new Array<Rectangle>();
+        spawnBackground();
+
     }
 
     private void spawnObstacle() {
@@ -110,6 +139,17 @@ public class GameScreen implements Screen {
         obstacle.height = 64;
         obstacles.add(obstacle);
         lastObstTime = TimeUtils.nanoTime();
+    }
+
+    private void spawnBackground() {
+        Rectangle background = new Rectangle();
+
+        background.x = 0;
+        background.y = 0;
+        background.width = 192;
+        background.height = 768;
+        backgrounds.add(background);
+        backgroundPos = background.y;
     }
 
     @Override
@@ -127,15 +167,23 @@ public class GameScreen implements Screen {
         //各batchを配置
         game.batch.begin();
 
-        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y); //プレイヤー
+        /*
+        game.batch.draw(backgroundImage, background.x, background.y);
+        */
+        for(Rectangle background : backgrounds) {
+            game.batch.draw(backgroundImage, background.x, background.y);
+        }
+
+        game.batch.draw(goalImage, goal.x, goal.y); //ゴール
 
         //障害物を繰り返し生成
         for(Rectangle obstacle : obstacles) {
             game.batch.draw(obstAnime.getKeyFrame(stateTime), obstacle.x, obstacle.y);
         }
 
+        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y); //プレイヤー
+
         game.font.draw(game.batch, obstCount + " m", 5, 379); //画面左上に現在の進行状況を表示
-        game.batch.draw(goalImage, goal.x, goal.y); //ゴール
 
         game.batch.end(); //batch.begin()からここまでの描写リクエストをまとめて処理
 
@@ -151,18 +199,35 @@ public class GameScreen implements Screen {
         if(player.x > 192 - 64)
             player.x = 192 - 64;
 
-        //障害物の生成が必要かチェックして生成
+        //背景の生成条件を設定
+        if(backgroundPos < -384) {
+            spawnBackground();
+        }
+
+        //背景のArrayリストに次のオブジェクトがある場合の処理
+        Iterator<Rectangle> bgIter = backgrounds.iterator();
+        while(bgIter.hasNext()) {
+            Rectangle background = bgIter.next();
+            background.y -= 600 * Gdx.graphics.getDeltaTime();
+            backgroundPos = background.y;
+            if(backgroundPos < -768) {
+                bgIter.remove();
+            }
+        }
+
+        //障害物の生成条件を設定
         if(TimeUtils.nanoTime() - lastObstTime > 500000000 && obstCount < gameCleaNumber) {
             spawnObstacle();
             obstCount++;
             }
 
-        Iterator<Rectangle> iter = obstacles.iterator();
-        while(iter.hasNext()) {
-            Rectangle obstacle = iter.next();
+        //障害物のArrayリストに次のオブジェクトがある場合の処理
+        Iterator<Rectangle> obstIter = obstacles.iterator();
+        while(obstIter.hasNext()) {
+            Rectangle obstacle = obstIter.next();
             obstacle.y -= 600 * Gdx.graphics.getDeltaTime();
             if(obstacle.y + 64 < 0)
-                iter.remove();
+                obstIter.remove();
             if(obstacle.overlaps(player)) {
                 missSound.play(0.3f);
                 try {
@@ -209,6 +274,7 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         goalImage.dispose();
+        backgroundImage.dispose();
         runMusic.dispose();
         missSound.dispose();
     }
