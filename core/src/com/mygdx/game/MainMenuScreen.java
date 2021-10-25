@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -15,12 +16,17 @@ public class MainMenuScreen implements Screen {
     OrthographicCamera camera;
     Viewport viewport;
 
+    Texture titleImage;
+
     public MainMenuScreen(final RunGame gam) {
         game = gam;
 
         camera = new OrthographicCamera(192, 384);
         viewport = new FitViewport(192, 384, camera);
         camera.setToOrtho(false, 192, 384);
+
+        //タイトル画面の画像をロード
+        titleImage = new Texture(Gdx.files.internal("title_screen.png"));
     }
 
     @Override
@@ -32,8 +38,7 @@ public class MainMenuScreen implements Screen {
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "Run Game!!", 48, 250);
-        game.font.draw(game.batch, "Press Space Key to Start.", 10, 200);
+        game.batch.draw(titleImage, 0, 0);
         game.batch.end();
 
         if(Gdx.input.isKeyPressed(Keys.SPACE)) {
@@ -65,6 +70,7 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
+        titleImage.dispose();
     }
 
 }

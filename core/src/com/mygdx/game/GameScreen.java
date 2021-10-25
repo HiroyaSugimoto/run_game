@@ -99,7 +99,7 @@ public class GameScreen implements Screen {
         //プレイヤー(playerAnime)用のRectangleを設定
         player = new Rectangle();
         player.x = 64;
-        player.y = 10;
+        player.y = 15;
         player.width = 64;
         player.height = 32;
 
