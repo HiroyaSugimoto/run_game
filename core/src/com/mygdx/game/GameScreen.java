@@ -66,7 +66,7 @@ public class GameScreen implements Screen {
         TextureRegion texture5 = new TextureRegion(new Texture("player5.png"));
         TextureRegion texture6 = new TextureRegion(new Texture("player6.png"));
 
-        //1〜6の画像を割り当て、1フレームあたり0.05秒で再生
+        //1〜6の画像をアニメーションに割り当て、1フレームあたり0.05秒で再生
         playerAnime = new Animation<TextureRegion>(0.05f, texture1, texture2, texture3, texture4, texture5, texture6);
         playerAnime.setPlayMode(Animation.PlayMode.LOOP); //アニメーションをループ再生
 
