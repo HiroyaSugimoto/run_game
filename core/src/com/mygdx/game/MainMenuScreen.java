@@ -16,7 +16,7 @@ public class MainMenuScreen implements Screen {
     OrthographicCamera camera;
     Viewport viewport;
 
-    Texture titleImage;
+    Texture titleImage; //タイトル画面の画像
 
     public MainMenuScreen(final RunGame gam) {
         game = gam;
