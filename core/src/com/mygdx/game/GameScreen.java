@@ -23,6 +23,11 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class GameScreen implements Screen {
     final RunGame game;
 
+    boolean playerPos = false; //プレイヤーがゲーム開始位置にいるかどうか
+
+    int gameSpeed = 600; //スクロールの速さ（毎秒何ピクセルかを設定）
+    int obstSpan = 500000000; //障害物の生成スパンをナノ秒単位で設定
+
     //カメラ関連の変数
     OrthographicCamera camera;
     Viewport viewport;
@@ -44,8 +49,12 @@ public class GameScreen implements Screen {
     Array<Rectangle> obstacles;
     Animation<TextureRegion> obstAnime;
     long lastObstTime;
-    int obstCount = 0; //障害物が生成された回数
+    int obstCount = 0; //障害物がdisposeされた回数
     int gameCleaNumber = 30; //obstCountが幾つになったらゴールが表示されるかの設定値
+
+    //スタート時の文関連の変数
+    Rectangle startWord;
+    Animation<TextureRegion> startAnime;
 
     //アニメーション関連の変数
     float stateTime; //アニメーション進度の管理用
@@ -59,22 +68,28 @@ public class GameScreen implements Screen {
         this.game = gam;
 
         //プレイヤーキャラクターのアニメーション用画像をロード
-        TextureRegion texture1 = new TextureRegion(new Texture("player1.png"));
-        TextureRegion texture2 = new TextureRegion(new Texture("player2.png"));
-        TextureRegion texture3 = new TextureRegion(new Texture("player3.png"));
-        TextureRegion texture4 = new TextureRegion(new Texture("player4.png"));
-        TextureRegion texture5 = new TextureRegion(new Texture("player5.png"));
-        TextureRegion texture6 = new TextureRegion(new Texture("player6.png"));
+        TextureRegion player1 = new TextureRegion(new Texture("player1.png"));
+        TextureRegion player2 = new TextureRegion(new Texture("player2.png"));
+        TextureRegion player3 = new TextureRegion(new Texture("player3.png"));
+        TextureRegion player4 = new TextureRegion(new Texture("player4.png"));
+        TextureRegion player5 = new TextureRegion(new Texture("player5.png"));
+        TextureRegion player6 = new TextureRegion(new Texture("player6.png"));
 
         //1〜6の画像をアニメーションに割り当て、1フレームあたり0.05秒で再生
-        playerAnime = new Animation<TextureRegion>(0.05f, texture1, texture2, texture3, texture4, texture5, texture6);
+        playerAnime = new Animation<TextureRegion>(0.05f, player1, player2, player3, player4, player5, player6);
         playerAnime.setPlayMode(Animation.PlayMode.LOOP); //アニメーションをループ再生
 
         //障害物のアニメーションを設定
-        TextureRegion texture7 = new TextureRegion(new Texture("obstacle1.png"));
-        TextureRegion texture8 = new TextureRegion(new Texture("obstacle2.png"));
-        obstAnime = new Animation<TextureRegion>(0.25f, texture7, texture8);
+        TextureRegion obstacle1 = new TextureRegion(new Texture("obstacle1.png"));
+        TextureRegion obstacle2 = new TextureRegion(new Texture("obstacle2.png"));
+        obstAnime = new Animation<TextureRegion>(0.25f, obstacle1, obstacle2);
         obstAnime.setPlayMode(Animation.PlayMode.LOOP);
+
+        //スタート時の文字のアニメーション設定
+        TextureRegion ready = new TextureRegion(new Texture("ready.png"));
+        TextureRegion go = new TextureRegion(new Texture("go.png"));
+        startAnime = new Animation<TextureRegion>(1.0f, ready, go);
+        startAnime.setPlayMode(Animation.PlayMode.NORMAL);
 
         stateTime = 0.0f; //アニメーション用の進行時間
         logger = new FPSLogger();
@@ -99,7 +114,7 @@ public class GameScreen implements Screen {
         //プレイヤー(playerAnime)用のRectangleを設定
         player = new Rectangle();
         player.x = 64;
-        player.y = 15;
+        player.y = -64;
         player.width = 64;
         player.height = 32;
 
@@ -109,6 +124,13 @@ public class GameScreen implements Screen {
         goal.y = 1152;
         goal.width = 192;
         goal.height = 16;
+
+        //スタート時の文字用Rectangleを設定
+        startWord = new Rectangle();
+        startWord.x = 0;
+        startWord.y = 192;
+        startWord.width = 192;
+        startWord.height = 64;
 
         //障害物用のRectangleリスト
         obstacles = new Array<Rectangle>();
@@ -125,7 +147,7 @@ public class GameScreen implements Screen {
 
         //x軸は0,64,128の3箇所からランダムに取得
         obstacle.x = MathUtils.random.nextInt(3) * 64;
-        obstacle.y = 384;
+        obstacle.y = 768;
         obstacle.width = 64;
         obstacle.height = 64;
         obstacles.add(obstacle);
@@ -145,22 +167,23 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+
         Gdx.gl.glClearColor(0.7f, 0.7f, 0.7f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update(); //カメラ更新処理
         logger.log(); //コンソールにFPS値を出力
+
         stateTime += Gdx.graphics.getDeltaTime(); //アニメーションの前フレームからの経過時間を進行時間に加算
 
         //SpriteBatchにcameraによって指定された座標系でレンダリングするよう指示
         game.batch.setProjectionMatrix(camera.combined);
 
-
         //各batchを配置
         game.batch.begin();
 
         //背景を繰り返し生成
-        for(Rectangle background : backgrounds) {
+        for (Rectangle background : backgrounds) {
             game.batch.draw(backgroundImage, background.x, background.y);
         }
 
@@ -168,81 +191,94 @@ public class GameScreen implements Screen {
         game.batch.draw(goalImage, goal.x, goal.y);
 
         //障害物を繰り返し生成
-        for(Rectangle obstacle : obstacles) {
+        for (Rectangle obstacle : obstacles) {
             game.batch.draw(obstAnime.getKeyFrame(stateTime), obstacle.x, obstacle.y);
         }
 
         //プレイヤー
-        game.batch.draw(playerAnime.getKeyFrame(stateTime),player.x, player.y);
+        game.batch.draw(playerAnime.getKeyFrame(stateTime), player.x, player.y);
 
         //画面左上に現在の進行状況を表示
         game.font.draw(game.batch, obstCount + " m", 5, 379);
 
+        game.batch.draw(startAnime.getKeyFrame(stateTime), startWord.x, startWord.y);
+
         game.batch.end(); //batch.begin()からここまでの描写リクエストをまとめて処理
 
-
         //ユーザーのキー入力処理
-        if(Gdx.input.isKeyJustPressed(Keys.LEFT))
+        if (Gdx.input.isKeyJustPressed(Keys.LEFT))
             player.x -= 64;
-        if(Gdx.input.isKeyJustPressed(Keys.RIGHT))
+        if (Gdx.input.isKeyJustPressed(Keys.RIGHT))
             player.x += 64;
 
         //playerを画面外に出さないための処理
-        if(player.x < 0)
+        if (player.x < 0)
             player.x = 0;
-        if(player.x > 192 - 64)
+        if (player.x > 192 - 64)
             player.x = 192 - 64;
 
         //背景の生成条件を設定
-        if(backgroundPos < -384) {
+        if (backgroundPos < -384) {
             spawnBackground();
         }
 
-        //背景のArrayリストに次のオブジェクトがある場合の処理
-        Iterator<Rectangle> bgIter = backgrounds.iterator();
-        while(bgIter.hasNext()) {
-            Rectangle background = bgIter.next();
-            background.y -= 600 * Gdx.graphics.getDeltaTime();
-            backgroundPos = background.y;
-            if(backgroundPos < -768) {
-                bgIter.remove();
-            }
+        player.y += 75 * Gdx.graphics.getDeltaTime();
+        if (player.y > 15) {
+            player.y = 15;
+            playerPos = true;
         }
 
-        //障害物の生成条件を設定
-        if(TimeUtils.nanoTime() - lastObstTime > 500000000 && obstCount < gameCleaNumber) {
-            spawnObstacle();
-            obstCount++;
+        if (playerPos == true) {
+            startWord.y -= gameSpeed * Gdx.graphics.getDeltaTime();
+
+            //背景のArrayリストに次のオブジェクトがある場合の処理
+            Iterator<Rectangle> bgIter = backgrounds.iterator();
+            while (bgIter.hasNext()) {
+                Rectangle background = bgIter.next();
+                background.y -= gameSpeed * Gdx.graphics.getDeltaTime();
+                backgroundPos = background.y;
+                if (backgroundPos < -768) {
+                    bgIter.remove();
+                }
             }
 
-        //障害物のArrayリストに次のオブジェクトがある場合の処理
-        Iterator<Rectangle> obstIter = obstacles.iterator();
-        while(obstIter.hasNext()) {
-            Rectangle obstacle = obstIter.next();
-            obstacle.y -= 600 * Gdx.graphics.getDeltaTime();
-            if(obstacle.y + 64 < 0)
-                obstIter.remove();
-            if(obstacle.overlaps(player)) {
-                missSound.play(0.3f);
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                game.setScreen(new GameOverScreen(game));
-                dispose();
+            //障害物の生成条件を設定
+            if (TimeUtils.nanoTime() - lastObstTime > obstSpan && obstCount < gameCleaNumber) {
+                spawnObstacle();
+                obstCount++;
+            }
+
+            //障害物のArrayリストに次のオブジェクトがある場合の処理
+            Iterator<Rectangle> obstIter = obstacles.iterator();
+            while (obstIter.hasNext()) {
+                Rectangle obstacle = obstIter.next();
+                obstacle.y -= gameSpeed * Gdx.graphics.getDeltaTime();
+                if (obstacle.y + 64 < 0)
+                    obstIter.remove();
+                if (obstacle.overlaps(player)) {
+                    missSound.play(0.3f);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                }
 
-        if(obstCount >= gameCleaNumber) {
-            goal.y -= 600 * Gdx.graphics.getDeltaTime();
-            if(goal.y + 18 < 0) {
-                game.setScreen(new GameClearScreen(game));
-                dispose();
+                    game.setScreen(new GameOverScreen(game));
+                    dispose();
                 }
             }
 
-         }
+            if (obstCount >= gameCleaNumber) {
+                goal.y -= gameSpeed * Gdx.graphics.getDeltaTime();
+                if (goal.y + 18 < 0) {
+                    game.setScreen(new GameClearScreen(game));
+                    dispose();
+                }
+            }
+
+        }
+
+    }
 
     @Override
     public void resize(int width, int height) {
@@ -273,5 +309,3 @@ public class GameScreen implements Screen {
         missSound.dispose();
     }
 }
-
-
