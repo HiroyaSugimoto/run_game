@@ -1,4 +1,4 @@
-![readme_title](https://user-images.githubusercontent.com/89298806/139438046-d1908f0a-a99b-4332-a291-bcc3f8c80cb9.png)</br>
+![readme_title](https://user-images.githubusercontent.com/89298806/139462544-8d8c741e-0f08-4ef1-ab32-9c84acaf4995.png)</br>
 A game in which a "Donut Boy" runs toward the goal while avoiding obstacles.</br>
 
 ## ![heading1](https://user-images.githubusercontent.com/89298806/139424195-64441aaf-86ba-4f75-b224-a1749d90d9ea.png)</br>
