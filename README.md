@@ -14,8 +14,8 @@ Need an environment where can use Java 11 applications.</br>
 ![HowToUse](https://user-images.githubusercontent.com/89298806/139427619-df6c23f2-981d-419b-a8ee-b8477d179d4f.png)
 
 ## ![heading4](https://user-images.githubusercontent.com/89298806/139424206-486f1d4e-2b31-4673-9b2f-8eea3cd41284.png)</br>
-The following audio files use free resources.</br>
+・The following audio files use free resources.</br>
 - "run_se.mp3" download from  : https://soundeffect-lab.info/sound/various/</br>
 - "miss_se.mp3" download from : https://taira-komori.jpn.org/
 
-Donut Boy is strawberry flavor.
+・Donut Boy is strawberry flavor.
