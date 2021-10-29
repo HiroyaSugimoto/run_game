@@ -8,7 +8,8 @@ A game in which a "Donut Boy" runs toward the goal while avoiding obstacles.</br
 - Aseprite（Pixel art drawing software）
 
 ## ![heading2](https://user-images.githubusercontent.com/89298806/139424201-dbd3c481-6999-4312-92b8-9e4df6a20053.png)</br>
-Need an environment where can use Java 11 applications.</br>
+Open the following jar file in an environment where you can use *Java 11* applications.</br>
+- [DonutRun.jar.zip](https://github.com/HiroyaSugimoto/run_game/files/7441891/DonutRun.jar.zip)
 
 ## ![heading3](https://user-images.githubusercontent.com/89298806/139424203-13ef568c-24c3-458b-8081-56c8288c3522.png)</br>
 ![HowToUse](https://user-images.githubusercontent.com/89298806/139427619-df6c23f2-981d-419b-a8ee-b8477d179d4f.png)
