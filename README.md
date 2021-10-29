@@ -1,4 +1,4 @@
-# Donut Run</br>
+![readme_title](https://user-images.githubusercontent.com/89298806/139365809-8d26e4c0-ffed-41d6-983f-7ae228666f15.png)</br>
 A game in which a "Donut Boy" runs toward the goal while avoiding obstacles.</br>
 
 ## Development Environment</br>
