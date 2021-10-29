@@ -11,7 +11,7 @@ A game in which a "Donut Boy" runs toward the goal while avoiding obstacles.</br
 Need an environment where can use Java 11 applications.</br>
 
 ## ![heading3](https://user-images.githubusercontent.com/89298806/139424203-13ef568c-24c3-458b-8081-56c8288c3522.png)</br>
-![HowToUse](https://user-images.githubusercontent.com/89298806/139424208-095a52e5-7231-429c-b507-f5994eae8a3d.png)
+![HowToUse](https://user-images.githubusercontent.com/89298806/139427619-df6c23f2-981d-419b-a8ee-b8477d179d4f.png)
 
 ## ![heading4](https://user-images.githubusercontent.com/89298806/139424206-486f1d4e-2b31-4673-9b2f-8eea3cd41284.png)</br>
 The following audio files use free resources.</br>
