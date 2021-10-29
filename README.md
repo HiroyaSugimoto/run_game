@@ -1,19 +1,19 @@
-![readme_title](https://user-images.githubusercontent.com/89298806/139365809-8d26e4c0-ffed-41d6-983f-7ae228666f15.png)</br>
+![readme_title](https://user-images.githubusercontent.com/89298806/139424209-4467d52c-c00e-42a3-ad4b-1eaf0fdc9554.png)</br>
 A game in which a "Donut Boy" runs toward the goal while avoiding obstacles.</br>
 
-## Development Environment</br>
+## ![heading1](https://user-images.githubusercontent.com/89298806/139424195-64441aaf-86ba-4f75-b224-a1749d90d9ea.png)</br>
 - Eclipse 2020-12(4.18.0)
 - Java 11
-- libGDX（Frame Work）
+- libGDX（Framework）
 - Aseprite（Pixel art drawing software）
 
-## Operating Environment</br>
+## ![heading2](https://user-images.githubusercontent.com/89298806/139424201-dbd3c481-6999-4312-92b8-9e4df6a20053.png)</br>
 Need an environment where can use Java 11 applications.</br>
 
-## How To Play</br>
-![HowToUse](https://user-images.githubusercontent.com/89298806/139364914-f6e1d8b6-32f2-4227-8f8d-148c9f78592b.png)
+## ![heading3](https://user-images.githubusercontent.com/89298806/139424203-13ef568c-24c3-458b-8081-56c8288c3522.png)</br>
+![HowToUse](https://user-images.githubusercontent.com/89298806/139424208-095a52e5-7231-429c-b507-f5994eae8a3d.png)
 
-## Note
+## ![heading4](https://user-images.githubusercontent.com/89298806/139424206-486f1d4e-2b31-4673-9b2f-8eea3cd41284.png)</br>
 The following audio files use free resources.</br>
 - "run_se.mp3" download from  : https://soundeffect-lab.info/sound/various/</br>
 - "miss_se.mp3" download from : https://taira-komori.jpn.org/
